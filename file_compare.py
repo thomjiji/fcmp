@@ -1,3 +1,10 @@
+"""
+File_Compare
+A Python command-line tool for comparing files between directories, with special support for video file proxy workflows
+"""
+__version__ = "1.4.1"
+__author__ = 'userprojekt'
+
 import os
 import sys
 import argparse
@@ -53,18 +60,30 @@ def compare_advanced(files1, files2):
         frame1 = file1_info.get('frame_count')
         frame2 = file2_info.get('frame_count')
         
-        if frame1 is not None and frame2 is not None and frame1 != frame2:
-            mismatch = {
-                'basename': key,  # Changed from 'key' to 'basename' to match exporter
-                'file1': file1_info['filename'],
-                'file2': file2_info['filename'],
-                'frames1': frame1,
-                'frames2': frame2,
-                'difference': abs(frame1 - frame2),
-                'path1': file1_info['path'],  # Added path1
-                'path2': file2_info['path']   # Added path2
-            }
-            frame_mismatches.append(mismatch)
+        # If frames match, skip (not a mismatch)
+        if frame1 == frame2:
+            continue
+            
+        # Determine difference value
+        difference = "N/A"
+        if isinstance(frame1, (int, float)) and isinstance(frame2, (int, float)):
+            difference = abs(frame1 - frame2)
+        elif frame1 is None:
+            difference = "Source frame count missing"
+        elif frame2 is None:
+            difference = "Proxy frame count missing"
+            
+        mismatch = {
+            'basename': key,
+            'file1': file1_info['filename'],
+            'file2': file2_info['filename'],
+            'frames1': frame1,
+            'frames2': frame2,
+            'difference': difference,
+            'path1': file1_info['path'],
+            'path2': file2_info['path']
+        }
+        frame_mismatches.append(mismatch)
     
     return unique1, unique2, frame_mismatches
 

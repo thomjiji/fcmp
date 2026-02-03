@@ -223,16 +223,27 @@ def export_to_html(data, output_file):
     if data['mode'] == 'proxy_advanced':
         if data.get('frame_mismatches'):
             # Mismatches found
+            # Helper definitions for formatting and sorting
+            def fmt_num(n):
+                if n is None: return "N/A"
+                if isinstance(n, (int, float)): return f"{n:,}"
+                return str(n)
+
+            def get_diff_value(m):
+                d = m['difference']
+                if isinstance(d, (int, float)): return d
+                return -1 # Push non-numeric differences to the end (or top since reverse=True)
+
             mismatch_rows = ''.join(f'''
             <tr class="mismatch">
                 <td>{html.escape(mismatch['basename'])}</td>
                 <td>{html.escape(mismatch['file1'])}</td>
-                <td>{mismatch['frames1']:,}</td>
+                <td>{fmt_num(mismatch['frames1'])}</td>
                 <td>{html.escape(mismatch['file2'])}</td>
-                <td>{mismatch['frames2']:,}</td>
-                <td><strong>{mismatch['difference']:,}</strong></td>
+                <td>{fmt_num(mismatch['frames2'])}</td>
+                <td><strong>{fmt_num(mismatch['difference'])}</strong></td>
             </tr>
-        ''' for mismatch in sorted(data['frame_mismatches'], key=lambda x: x['difference'], reverse=True))
+        ''' for mismatch in sorted(data['frame_mismatches'], key=get_diff_value, reverse=True))
             
             mismatch_html = f'''
         <div class="section">

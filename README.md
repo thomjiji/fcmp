@@ -30,7 +30,6 @@ Exports to JSON, TXT, CSV, or HTML (or any combination in a single run).
   brew install mediainfo
 
   # Linux
-  
   sudo apt-get install mediainfo
 
   # Windows
@@ -95,6 +94,38 @@ uv run fcmp -a /Volumes/Originals -b /Volumes/Proxies -m proxy
 # Full proxy verification: basename match + frame-count check.
 uv run fcmp -a /Volumes/Originals -b /Volumes/Proxies -m proxy-frames -f html
 ```
+
+## Prefer the shell?
+
+The core of fcmp is a sorted filename set diff. If you live in a terminal,
+`find` + `sort` + `comm` covers most of the job without installing anything.
+
+**Normal mode** — relative paths present in A, missing from B:
+
+```sh
+comm -23 <(cd /src && find . -type f | sort) \
+         <(cd /dst && find . -type f | sort)
+```
+
+**Proxy mode** — basename match ignoring extension, video files only
+(extend the extension list to taste):
+
+```sh
+list() {
+  find "$1" -type f | grep -Ei '\.(mp4|mov|mxf|mkv|avi|m4v)$' \
+    | sed 's|.*/||; s|\.[^.]*$||' | sort -u
+}
+comm -23 <(list /src) <(list /dst)
+```
+
+**Proxy-frames mode** — the frame-count cross-check needs a `mediainfo`
+call per file plus a join across differing extensions. Doable in shell but
+becomes a script at that point; this is where fcmp earns its keep.
+
+What fcmp adds on top of the pipes: multi-directory groups per side
+(`-a A1 A2 A3`), auto-skip of OS cruft (`.DS_Store`, `@eaDir`,
+`$RECYCLE.BIN`, `Thumbs.db`, …), HTML/CSV/JSON reports, and the
+proxy-frames verification. If none of those matter, the shell is fine.
 
 ## Project layout
 

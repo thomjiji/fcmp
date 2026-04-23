@@ -97,46 +97,50 @@ uv run fcmp -a /Volumes/Originals -b /Volumes/Proxies -m proxy-frames -f html
 
 ## Real-World Scenarios
 
-**Video Production Workflow:**
+**Video production workflow:**
+
 ```sh
-# Compare original footage with proxy files
-python file_compare.py -m proxy -f html \
-  /Volumes/Storage/Originals \
-  /Volumes/EditDrive/Proxies
+# Compare original footage with proxy files.
+uv run fcmp -m proxy -f html \
+  -a /Volumes/Storage/Originals \
+  -b /Volumes/EditDrive/Proxies
 
-# Compare original footage with proxy files and export to HTML and JSON
-python file_compare.py -m proxy -f html json \
-  /Volumes/Storage/Originals \
-  /Volumes/EditDrive/Proxies
+# Same, but export both HTML and JSON.
+uv run fcmp -m proxy -f html json \
+  -a /Volumes/Storage/Originals \
+  -b /Volumes/EditDrive/Proxies
 
-# Advanced verification with frame count checking
-python file_compare.py -m proxyadv -f html \
-  /Volumes/Storage/Originals \
-  /Volumes/EditDrive/Proxies
+# Advanced verification with frame-count checking.
+uv run fcmp -m proxy-frames -f html \
+  -a /Volumes/Storage/Originals \
+  -b /Volumes/EditDrive/Proxies
 ```
 
-**Backup Verification:**
+**Copy-completeness check across multiple drives:**
+
 ```sh
-# Verify backup across multiple drives
-python file_compare.py -f csv \
-  "/Volumes/Backup1+/Volumes/Backup2" \
-  /Volumes/Master
+# Confirm every file in Backup1 + Backup2 also exists on the master drive.
+uv run fcmp -f csv \
+  -a /Volumes/Backup1 /Volumes/Backup2 \
+  -b /Volumes/Master
 ```
 
-**Multi-Location Archive:**
+**Multi-location archive:**
+
 ```sh
-# Compare files from multiple archive locations
-python file_compare.py -f json \
-  "/Archive/2024/Q1+/Archive/2024/Q2+/Archive/2024/Q3" \
-  /CurrentProjects
+# Check whether every archived file made it into the current project set.
+uv run fcmp -f json \
+  -a /Archive/2024/Q1 /Archive/2024/Q2 /Archive/2024/Q3 \
+  -b /CurrentProjects
 ```
 
-**Quality Control for Proxy Encoding:**
+**Proxy-encoding QC:**
+
 ```sh
-# Verify all proxies are complete (not truncated)
-python file_compare.py -m proxyadv -f html \
-  /Production/Camera_Originals \
-  /Production/Proxies
+# Flag proxies that are missing or have the wrong frame count.
+uv run fcmp -m proxy-frames -f html \
+  -a /Production/Camera_Originals \
+  -b /Production/Proxies
 ```
 
 ## Project layout
